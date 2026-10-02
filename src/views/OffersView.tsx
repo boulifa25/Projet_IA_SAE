@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
   Search,
-  Filter,
   MapPin,
   Clock,
   Users,

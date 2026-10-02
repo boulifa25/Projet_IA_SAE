@@ -1,53 +1,75 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { authApi, ApiError, type UserResponse, type RegisterPayload } from '@/lib/api';
+
+const TOKEN_STORAGE_KEY = 'stageia_token';
 
 interface AuthContextValue {
-  session: Session | null;
-  user: User | null;
+  user: UserResponse | null;
+  token: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: string | null }>;
-  signOut: () => Promise<void>;
+  signUp: (payload: RegisterPayload) => Promise<{ error: string | null }>;
+  signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<UserResponse | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!storedToken) {
       setLoading(false);
-    });
+      return;
+    }
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
+    authApi
+      .me(storedToken)
+      .then((profile) => {
+        setToken(storedToken);
+        setUser(profile);
+      })
+      .catch(() => {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message ?? null };
+    try {
+      const auth = await authApi.login({ email, password });
+      localStorage.setItem(TOKEN_STORAGE_KEY, auth.token);
+      setToken(auth.token);
+      setUser(auth.user);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : 'Impossible de se connecter.' };
+    }
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    return { error: error?.message ?? null };
+  const signUp = async (payload: RegisterPayload) => {
+    try {
+      const auth = await authApi.register(payload);
+      localStorage.setItem(TOKEN_STORAGE_KEY, auth.token);
+      setToken(auth.token);
+      setUser(auth.user);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : 'Impossible de créer le compte.' };
+    }
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
+  const signOut = () => {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    setToken(null);
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, token, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: stageia-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stageia
+      POSTGRES_USER: stageia_user
+      POSTGRES_PASSWORD: stageia_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - stageia_pg_data:/var/lib/postgresql/data
+
+volumes:
+  stageia_pg_data:

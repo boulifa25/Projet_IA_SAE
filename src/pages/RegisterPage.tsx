@@ -1,20 +1,61 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, Mail, Lock, Eye, EyeOff, ArrowLeft, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import {
+  GraduationCap,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+  AlertCircle,
+  Loader2,
+  CheckCircle2,
+  User,
+  BookUser,
+  Building2,
+} from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import type { RegisterPayload } from '@/lib/api';
+
+type RegistrableRole = RegisterPayload['role'];
+
+const roleOptions: { value: RegistrableRole; label: string; icon: typeof User }[] = [
+  { value: 'ETUDIANT', label: 'Étudiant', icon: User },
+  { value: 'ENSEIGNANT', label: 'Enseignant', icon: BookUser },
+  { value: 'ENTREPRISE', label: 'Entreprise', icon: Building2 },
+];
+
+const inputClass =
+  'w-full bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none flex-1';
+const fieldWrapperClass =
+  'flex items-center gap-2 px-3.5 py-3 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-primary-300 focus-within:bg-white transition-colors';
 
 export default function RegisterPage() {
   const { signUp } = useAuth();
   const navigate = useNavigate();
+
+  const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState<RegistrableRole>('ETUDIANT');
+
+  const [matricule, setMatricule] = useState('');
+  const [filiere, setFiliere] = useState('');
+  const [promotion, setPromotion] = useState('');
+  const [departement, setDepartement] = useState('');
+  const [specialite, setSpecialite] = useState('');
+  const [raisonSociale, setRaisonSociale] = useState('');
+  const [secteur, setSecteur] = useState('');
+  const [adresse, setAdresse] = useState('');
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const passwordRules = [
-    { test: (p: string) => p.length >= 6, label: 'Au moins 6 caractères' },
+    { test: (p: string) => p.length >= 8, label: 'Au moins 8 caractères' },
     { test: (p: string) => /[A-Z]/.test(p), label: 'Une majuscule' },
     { test: (p: string) => /[0-9]/.test(p), label: 'Un chiffre' },
   ];
@@ -32,8 +73,19 @@ export default function RegisterPage() {
       return;
     }
 
+    const payload: RegisterPayload = {
+      nom,
+      prenom,
+      email,
+      password,
+      role,
+      ...(role === 'ETUDIANT' && { matricule, filiere, promotion }),
+      ...(role === 'ENSEIGNANT' && { departement, specialite }),
+      ...(role === 'ENTREPRISE' && { raisonSociale, secteur, adresse }),
+    };
+
     setLoading(true);
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(payload);
     setLoading(false);
     if (error) {
       setError(error);
@@ -74,7 +126,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 lg:px-20 bg-white">
+      <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 lg:px-20 bg-white py-12">
         <div className="w-full max-w-md mx-auto">
           {/* Back link */}
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 mb-8 transition-colors">
@@ -109,10 +161,66 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Role selector */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Je suis</label>
+              <div className="grid grid-cols-3 gap-2">
+                {roleOptions.map((option) => {
+                  const Icon = option.icon;
+                  const active = role === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setRole(option.value)}
+                      className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-xs font-semibold transition-colors ${
+                        active
+                          ? 'border-primary-400 bg-primary-50 text-primary-700'
+                          : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Icon className="w-4.5 h-4.5" />
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Nom / Prénom */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Prénom</label>
+                <div className={fieldWrapperClass}>
+                  <input
+                    type="text"
+                    required
+                    value={prenom}
+                    onChange={(e) => setPrenom(e.target.value)}
+                    placeholder="Lucas"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Nom</label>
+                <div className={fieldWrapperClass}>
+                  <input
+                    type="text"
+                    required
+                    value={nom}
+                    onChange={(e) => setNom(e.target.value)}
+                    placeholder="Martin"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Email */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
-              <div className="flex items-center gap-2 px-3.5 py-3 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-primary-300 focus-within:bg-white transition-colors">
+              <div className={fieldWrapperClass}>
                 <Mail className="w-5 h-5 text-slate-400" />
                 <input
                   type="email"
@@ -120,15 +228,129 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="vous@ecole.fr"
-                  className="bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none flex-1"
+                  className={inputClass}
                 />
               </div>
             </div>
 
+            {/* Role-specific fields */}
+            {role === 'ETUDIANT' && (
+              <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Matricule</label>
+                  <div className={fieldWrapperClass}>
+                    <input
+                      type="text"
+                      value={matricule}
+                      onChange={(e) => setMatricule(e.target.value)}
+                      placeholder="E12345"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Promotion</label>
+                  <div className={fieldWrapperClass}>
+                    <input
+                      type="text"
+                      value={promotion}
+                      onChange={(e) => setPromotion(e.target.value)}
+                      placeholder="2026"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Filière</label>
+                  <div className={fieldWrapperClass}>
+                    <input
+                      type="text"
+                      value={filiere}
+                      onChange={(e) => setFiliere(e.target.value)}
+                      placeholder="Informatique"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {role === 'ENSEIGNANT' && (
+              <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Département</label>
+                  <div className={fieldWrapperClass}>
+                    <input
+                      type="text"
+                      value={departement}
+                      onChange={(e) => setDepartement(e.target.value)}
+                      placeholder="Informatique"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Spécialité</label>
+                  <div className={fieldWrapperClass}>
+                    <input
+                      type="text"
+                      value={specialite}
+                      onChange={(e) => setSpecialite(e.target.value)}
+                      placeholder="Data & IA"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {role === 'ENTREPRISE' && (
+              <div className="space-y-4 animate-fade-in">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Raison sociale</label>
+                  <div className={fieldWrapperClass}>
+                    <input
+                      type="text"
+                      value={raisonSociale}
+                      onChange={(e) => setRaisonSociale(e.target.value)}
+                      placeholder="TechNova"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Secteur</label>
+                    <div className={fieldWrapperClass}>
+                      <input
+                        type="text"
+                        value={secteur}
+                        onChange={(e) => setSecteur(e.target.value)}
+                        placeholder="Technologie"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Adresse</label>
+                    <div className={fieldWrapperClass}>
+                      <input
+                        type="text"
+                        value={adresse}
+                        onChange={(e) => setAdresse(e.target.value)}
+                        placeholder="Paris, France"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Password */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Mot de passe</label>
-              <div className="flex items-center gap-2 px-3.5 py-3 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-primary-300 focus-within:bg-white transition-colors">
+              <div className={fieldWrapperClass}>
                 <Lock className="w-5 h-5 text-slate-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -136,7 +358,7 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none flex-1"
+                  className={inputClass}
                 />
                 <button
                   type="button"
@@ -170,7 +392,7 @@ export default function RegisterPage() {
             {/* Confirm password */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Confirmer le mot de passe</label>
-              <div className="flex items-center gap-2 px-3.5 py-3 bg-slate-50 rounded-xl border border-slate-200 focus-within:border-primary-300 focus-within:bg-white transition-colors">
+              <div className={fieldWrapperClass}>
                 <Lock className="w-5 h-5 text-slate-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -178,7 +400,7 @@ export default function RegisterPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none flex-1"
+                  className={inputClass}
                 />
               </div>
             </div>
