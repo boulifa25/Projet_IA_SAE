@@ -38,6 +38,12 @@ public class CandidatureController {
 
     private final CandidatureService candidatureService;
 
+    @GetMapping("/toutes")
+    @PreAuthorize("hasRole('ADMINISTRATEUR')")
+    public List<CandidatureResponse> toutes() {
+        return candidatureService.listerToutes();
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ETUDIANT')")
     public ResponseEntity<CandidatureResponse> postuler(

@@ -74,6 +74,44 @@ async function apiFetch<T>(path: string, options: RequestInit = {}, token?: stri
   return response.json() as Promise<T>;
 }
 
+export interface DashboardStatsResponse {
+  offresActives: number;
+  candidaturesTotal: number;
+  etudiantsPlaces: number;
+  entreprisesPartenaires: number;
+}
+
+export interface EntrepriseAdminResponse {
+  id: number;
+  raisonSociale: string;
+  secteur: string | null;
+  adresse: string | null;
+  email: string;
+  nombreOffresActives: number;
+  nombreCandidaturesRecues: number;
+  nombreEmbauches: number;
+}
+
+export type StatutStageAdmin = 'AUCUN' | 'EN_COURS' | 'TERMINE';
+
+export interface EtudiantAdminResponse {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  matricule: string | null;
+  filiere: string | null;
+  promotion: string | null;
+  statutStage: StatutStageAdmin;
+  entrepriseNom: string | null;
+}
+
+export const adminApi = {
+  stats: (token: string) => apiFetch<DashboardStatsResponse>('/api/admin/stats', {}, token),
+  entreprises: (token: string) => apiFetch<EntrepriseAdminResponse[]>('/api/admin/entreprises', {}, token),
+  etudiants: (token: string) => apiFetch<EtudiantAdminResponse[]>('/api/admin/etudiants', {}, token),
+};
+
 export const usersApi = {
   tous: (token: string) => apiFetch<UserResponse[]>('/api/admin/utilisateurs', {}, token),
   resetPassword: (id: number, nouveauMotDePasse: string, token: string) =>
@@ -141,6 +179,7 @@ export interface OffreMatchingResultat {
 
 export const offresApi = {
   list: (token: string) => apiFetch<OffreResponse[]>('/api/offres', {}, token),
+  toutes: (token: string) => apiFetch<OffreResponse[]>('/api/offres/toutes', {}, token),
   matching: (token: string) => apiFetch<OffreMatchingResultat[]>('/api/offres/matching', {}, token),
   mesOffres: (token: string) => apiFetch<OffreResponse[]>('/api/offres/mes-offres', {}, token),
   detail: (id: number, token: string) => apiFetch<OffreResponse>(`/api/offres/${id}`, {}, token),
@@ -182,6 +221,7 @@ export const candidaturesApi = {
   },
 
   mesCandidatures: (token: string) => apiFetch<CandidatureResponse[]>('/api/candidatures/mes-candidatures', {}, token),
+  toutes: (token: string) => apiFetch<CandidatureResponse[]>('/api/candidatures/toutes', {}, token),
   recues: (token: string) => apiFetch<CandidatureResponse[]>('/api/candidatures/recues', {}, token),
 
   changerStatut: (id: number, statut: StatutCandidature, token: string) =>

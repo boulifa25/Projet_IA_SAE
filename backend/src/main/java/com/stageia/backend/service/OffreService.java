@@ -61,6 +61,14 @@ public class OffreService {
     }
 
     @Transactional(readOnly = true)
+    public List<OffreResponse> listerToutes() {
+        return offreRepository.findAll().stream()
+                .sorted((a, b) -> b.getDateCreation().compareTo(a.getDateCreation()))
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<OffreResponse> listerPubliees() {
         return offreRepository.findByStatutOrderByDateCreationDesc(StatutOffre.PUBLIEE)
                 .stream().map(this::toResponse).toList();

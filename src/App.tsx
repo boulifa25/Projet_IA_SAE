@@ -22,11 +22,11 @@ import SuiviIAEnseignant from '@/pages/roles/enseignant/SuiviIAEnseignant';
 import ConventionsAdmin from '@/pages/roles/admin/ConventionsAdmin';
 import SoutenancesAdmin from '@/pages/roles/admin/SoutenancesAdmin';
 import UtilisateursAdmin from '@/pages/roles/admin/UtilisateursAdmin';
-import DashboardView from '@/views/DashboardView';
-import OffersView from '@/views/OffersView';
-import ApplicationsView from '@/views/ApplicationsView';
-import CompaniesView from '@/views/CompaniesView';
-import StudentsView from '@/views/StudentsView';
+import DashboardAdmin from '@/pages/roles/admin/DashboardAdmin';
+import OffresAdmin from '@/pages/roles/admin/OffresAdmin';
+import CandidaturesAdmin from '@/pages/roles/admin/CandidaturesAdmin';
+import EntreprisesAdmin from '@/pages/roles/admin/EntreprisesAdmin';
+import EtudiantsAdmin from '@/pages/roles/admin/EtudiantsAdmin';
 import SettingsView from '@/views/SettingsView';
 import { etudiantNav, entrepriseNav, enseignantNav, adminNav, roleBasePath, roleLabels } from '@/config/navigation';
 import {
@@ -200,13 +200,13 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<DashboardView />} />
-        <Route path="offres" element={<OffersView />} />
-        <Route path="candidatures" element={<ApplicationsView />} />
+        <Route index element={<DashboardAdmin />} />
+        <Route path="offres" element={<OffresAdmin />} />
+        <Route path="candidatures" element={<CandidaturesAdmin />} />
         <Route path="conventions" element={<ConventionsAdmin />} />
         <Route path="soutenances" element={<SoutenancesAdmin />} />
-        <Route path="entreprises" element={<CompaniesView />} />
-        <Route path="etudiants" element={<StudentsView />} />
+        <Route path="entreprises" element={<EntreprisesAdmin />} />
+        <Route path="etudiants" element={<EtudiantsAdmin />} />
         <Route path="utilisateurs" element={<UtilisateursAdmin />} />
         <Route path="parametres" element={<SettingsView />} />
       </Route>

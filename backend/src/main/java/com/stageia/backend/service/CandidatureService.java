@@ -58,6 +58,14 @@ public class CandidatureService {
     }
 
     @Transactional(readOnly = true)
+    public List<CandidatureResponse> listerToutes() {
+        return candidatureRepository.findAll().stream()
+                .sorted((a, b) -> b.getDateEnvoi().compareTo(a.getDateEnvoi()))
+                .map(CandidatureResponse::new)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<CandidatureResponse> listerMesCandidatures(Etudiant etudiant) {
         return candidatureRepository.findByEtudiantOrderByDateEnvoiDesc(etudiant)
                 .stream().map(CandidatureResponse::new).toList();

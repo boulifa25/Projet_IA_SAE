@@ -43,6 +43,12 @@ public class OffreController {
         return matchingService.calculerMatching((Etudiant) principal.getUtilisateur());
     }
 
+    @GetMapping("/toutes")
+    @PreAuthorize("hasRole('ADMINISTRATEUR')")
+    public List<OffreResponse> listerToutes() {
+        return offreService.listerToutes();
+    }
+
     @GetMapping("/mes-offres")
     @PreAuthorize("hasRole('ENTREPRISE')")
     public List<OffreResponse> listerMesOffres(@AuthenticationPrincipal UserPrincipal principal) {
