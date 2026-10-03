@@ -50,6 +50,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body(HttpStatus.CONFLICT, ex.getMessage(), null));
     }
 
+    @ExceptionHandler(IAServiceException.class)
+    public ResponseEntity<Map<String, Object>> handleIAServiceException(IAServiceException ex) {
+        // Sans ce handler, une exception non interceptée ici déclenche un renvoi interne vers /error
+        // qui repasse par le filtre de sécurité SANS l'en-tête Authorization d'origine, et ressort donc
+        // comme un 401 trompeur au lieu du vrai problème (quota API dépassé, réseau, etc.).
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body(HttpStatus.SERVICE_UNAVAILABLE,
+                "Le service IA est temporairement indisponible (quota ou surcharge). Réessayez dans quelques instants.", null));
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
