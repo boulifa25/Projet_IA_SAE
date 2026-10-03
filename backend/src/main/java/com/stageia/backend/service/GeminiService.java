@@ -6,6 +6,7 @@ import com.stageia.backend.dto.gemini.GeminiPart;
 import com.stageia.backend.dto.gemini.GeminiRequest;
 import com.stageia.backend.dto.gemini.GeminiResponse;
 import com.stageia.backend.dto.gemini.GeminiSystemInstruction;
+import com.stageia.backend.dto.ia.ConversationMessage;
 import com.stageia.backend.exception.IAServiceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,9 @@ import java.util.List;
 @Service
 public class GeminiService {
 
+    private static final int MAX_TENTATIVES = 3;
+    private static final long DELAI_ENTRE_TENTATIVES_MS = 3000;
+
     private final RestClient restClient;
     private final String model;
 
@@ -36,13 +40,20 @@ public class GeminiService {
                 .build();
     }
 
-    private static final int MAX_TENTATIVES = 3;
-    private static final long DELAI_ENTRE_TENTATIVES_MS = 3000;
-
+    /** Appel simple à une question unique (sans historique) — analyse de rapport, matching... */
     public String demander(String systemPrompt, String message) {
+        return demanderAvecHistorique(systemPrompt, List.of(new ConversationMessage("user", message)));
+    }
+
+    /** Appel avec un historique de conversation multi-tours — utilisé par le chatbot. */
+    public String demanderAvecHistorique(String systemPrompt, List<ConversationMessage> historique) {
+        List<GeminiContent> contents = historique.stream()
+                .map(m -> new GeminiContent(m.role(), List.of(new GeminiPart(m.contenu()))))
+                .toList();
+
         GeminiRequest request = new GeminiRequest(
                 new GeminiSystemInstruction(systemPrompt),
-                List.of(new GeminiContent("user", List.of(new GeminiPart(message)))),
+                contents,
                 new GeminiGenerationConfig(1024)
         );
 
@@ -62,7 +73,7 @@ public class GeminiService {
                 return response.firstText();
             } catch (HttpServerErrorException.ServiceUnavailable e) {
                 // Le tier gratuit de Gemini subit parfois des pics de charge temporaires (503) :
-                // une courte nouvelle tentative suffit généralement, inutile de faire échouer l'analyse.
+                // une courte nouvelle tentative suffit généralement, inutile de faire échouer l'appel.
                 derniereErreur = e;
                 attendreAvantNouvelleTentative(tentative);
             } catch (RestClientException e) {

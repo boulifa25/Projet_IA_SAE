@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
+import ChatWidget from '@/components/ChatWidget';
 import { useAuth } from '@/context/AuthContext';
 import type { NavItem } from '@/config/navigation';
 
@@ -45,6 +46,7 @@ export default function RoleLayout({ navItems, roleLabel }: RoleLayoutProps) {
           <Outlet />
         </main>
       </div>
+      <ChatWidget />
     </div>
   );
 }

@@ -411,6 +411,16 @@ export const recommandationsApi = {
   mesAlertes: (token: string) => apiFetch<AlerteRisqueResponse[]>('/api/recommandations/mes-alertes', {}, token),
 };
 
+export interface ChatMessage {
+  role: 'user' | 'model';
+  contenu: string;
+}
+
+export const chatbotApi = {
+  envoyer: (message: string, historique: ChatMessage[], token: string) =>
+    apiFetch<{ reponse: string }>('/api/chatbot/message', { method: 'POST', body: JSON.stringify({ message, historique }) }, token),
+};
+
 export const messagesApi = {
   envoyer: (stageId: number, contenu: string, token: string) =>
     apiFetch<MessageResponse>('/api/messages', { method: 'POST', body: JSON.stringify({ stageId, contenu }) }, token),
