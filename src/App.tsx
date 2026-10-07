@@ -5,15 +5,17 @@ import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import RoleLayout from '@/layouts/RoleLayout';
-import RoleDashboard from '@/pages/roles/RoleDashboard';
+import DashboardEtudiant from '@/pages/roles/etudiant/DashboardEtudiant';
 import OffresEtudiant from '@/pages/roles/etudiant/OffresEtudiant';
 import CandidaturesEtudiant from '@/pages/roles/etudiant/CandidaturesEtudiant';
 import MonStage from '@/pages/roles/etudiant/MonStage';
 import MessagerieEtudiant from '@/pages/roles/etudiant/MessagerieEtudiant';
+import DashboardEntreprise from '@/pages/roles/entreprise/DashboardEntreprise';
 import OffresEntreprise from '@/pages/roles/entreprise/OffresEntreprise';
 import CandidaturesEntreprise from '@/pages/roles/entreprise/CandidaturesEntreprise';
 import MessagerieEntreprise from '@/pages/roles/entreprise/MessagerieEntreprise';
 import EvaluationEntreprise from '@/pages/roles/entreprise/EvaluationEntreprise';
+import DashboardEnseignant from '@/pages/roles/enseignant/DashboardEnseignant';
 import ConventionsEnseignant from '@/pages/roles/enseignant/ConventionsEnseignant';
 import EtudiantsEnseignant from '@/pages/roles/enseignant/EtudiantsEnseignant';
 import MessagerieEnseignant from '@/pages/roles/enseignant/MessagerieEnseignant';
@@ -27,19 +29,10 @@ import OffresAdmin from '@/pages/roles/admin/OffresAdmin';
 import CandidaturesAdmin from '@/pages/roles/admin/CandidaturesAdmin';
 import EntreprisesAdmin from '@/pages/roles/admin/EntreprisesAdmin';
 import EtudiantsAdmin from '@/pages/roles/admin/EtudiantsAdmin';
+import ProfilPage from '@/pages/roles/ProfilPage';
 import SettingsView from '@/views/SettingsView';
 import { etudiantNav, entrepriseNav, enseignantNav, adminNav, roleBasePath, roleLabels } from '@/config/navigation';
-import {
-  Loader2,
-  Briefcase,
-  FileText,
-  GraduationCap,
-  MessageSquare,
-  Users,
-  Sparkles,
-  FileCheck,
-  Award,
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import type { Role } from '@/lib/api';
 
 function LoadingScreen() {
@@ -101,26 +94,12 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route
-          index
-          element={
-            <RoleDashboard
-              tagline="Bienvenue sur votre espace stage"
-              description="Retrouvez ici vos candidatures, l'avancement de votre stage et les conseils personnalisés de l'assistant IA."
-              features={[
-                { icon: Briefcase, title: 'Offres de stage', description: 'Recherchez des offres adaptées à votre profil.', sprint: '', to: '/app/etudiant/offres' },
-                { icon: FileText, title: 'Mes candidatures', description: 'Suivez le statut de chaque candidature envoyée.', sprint: '', to: '/app/etudiant/candidatures' },
-                { icon: GraduationCap, title: 'Mon stage', description: 'Déposez vos rapports et suivez vos jalons.', sprint: '', to: '/app/etudiant/stage' },
-                { icon: Sparkles, title: 'Conseils IA', description: 'Recevez des recommandations personnalisées.', sprint: 'Arrive au Sprint 4' },
-                { icon: MessageSquare, title: 'Messagerie', description: 'Échangez avec vos tuteurs académique et professionnel.', sprint: '', to: '/app/etudiant/messagerie' },
-              ]}
-            />
-          }
-        />
+        <Route index element={<DashboardEtudiant />} />
         <Route path="offres" element={<OffresEtudiant />} />
         <Route path="candidatures" element={<CandidaturesEtudiant />} />
         <Route path="stage" element={<MonStage />} />
         <Route path="messagerie" element={<MessagerieEtudiant />} />
+        <Route path="profil" element={<ProfilPage />} />
       </Route>
 
       {/* Espace Entreprise */}
@@ -134,25 +113,12 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route
-          index
-          element={
-            <RoleDashboard
-              tagline="Bienvenue sur votre espace entreprise"
-              description="Publiez vos offres de stage et suivez les candidatures reçues, classées par pertinence."
-              features={[
-                { icon: Briefcase, title: 'Mes offres', description: 'Publiez, modifiez et clôturez vos offres de stage.', sprint: '', to: '/app/entreprise/offres' },
-                { icon: FileText, title: 'Candidatures reçues', description: 'Présélectionnez et évaluez les candidats.', sprint: '', to: '/app/entreprise/candidatures' },
-                { icon: Award, title: 'Évaluation', description: 'Évaluez vos stagiaires après la soutenance.', sprint: '', to: '/app/entreprise/evaluation' },
-                { icon: MessageSquare, title: 'Messagerie', description: 'Échangez avec les candidats et l\'école.', sprint: '', to: '/app/entreprise/messagerie' },
-              ]}
-            />
-          }
-        />
+        <Route index element={<DashboardEntreprise />} />
         <Route path="offres" element={<OffresEntreprise />} />
         <Route path="candidatures" element={<CandidaturesEntreprise />} />
         <Route path="evaluation" element={<EvaluationEntreprise />} />
         <Route path="messagerie" element={<MessagerieEntreprise />} />
+        <Route path="profil" element={<ProfilPage />} />
       </Route>
 
       {/* Espace Enseignant */}
@@ -166,27 +132,13 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route
-          index
-          element={
-            <RoleDashboard
-              tagline="Bienvenue sur votre espace enseignant"
-              description="Suivez vos étudiants encadrés et les alertes de risque générées par l'assistant IA."
-              features={[
-                { icon: Users, title: 'Mes étudiants', description: 'Visualisez tous les étudiants que vous encadrez.', sprint: '', to: '/app/enseignant/etudiants' },
-                { icon: Sparkles, title: 'Suivi IA', description: 'Recevez des alertes de risque de décrochage.', sprint: '', to: '/app/enseignant/suivi-ia' },
-                { icon: FileCheck, title: 'Conventions', description: 'Validez les conventions de stage.', sprint: '', to: '/app/enseignant/conventions' },
-                { icon: Award, title: 'Évaluation', description: 'Évaluez vos étudiants après la soutenance.', sprint: '', to: '/app/enseignant/evaluation' },
-                { icon: MessageSquare, title: 'Messagerie', description: 'Échangez avec vos étudiants encadrés.', sprint: '', to: '/app/enseignant/messagerie' },
-              ]}
-            />
-          }
-        />
+        <Route index element={<DashboardEnseignant />} />
         <Route path="etudiants" element={<EtudiantsEnseignant />} />
         <Route path="suivi-ia" element={<SuiviIAEnseignant />} />
         <Route path="conventions" element={<ConventionsEnseignant />} />
         <Route path="evaluation" element={<EvaluationEnseignant />} />
         <Route path="messagerie" element={<MessagerieEnseignant />} />
+        <Route path="profil" element={<ProfilPage />} />
       </Route>
 
       {/* Espace Administrateur */}
@@ -209,6 +161,7 @@ function AppRoutes() {
         <Route path="etudiants" element={<EtudiantsAdmin />} />
         <Route path="utilisateurs" element={<UtilisateursAdmin />} />
         <Route path="parametres" element={<SettingsView />} />
+        <Route path="profil" element={<ProfilPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

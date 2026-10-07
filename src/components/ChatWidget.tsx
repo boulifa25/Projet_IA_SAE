@@ -45,7 +45,7 @@ export default function ChatWidget() {
           <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-br from-primary-600 to-accent-500 text-white shrink-0">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
-              <h3 className="font-display font-bold text-sm">Assistant StageÉcole</h3>
+              <h3 className="font-display font-bold text-sm">Assistant StageIO</h3>
             </div>
             <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white transition-colors">
               <X className="w-4 h-4" />
@@ -104,7 +104,7 @@ export default function ChatWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary-600 to-accent-500 text-white shadow-glow flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
-        title="Assistant StageÉcole"
+        title="Assistant StageIO"
       >
         {open ? <X className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
       </button>

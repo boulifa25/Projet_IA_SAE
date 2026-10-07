@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, Mail, Lock, Eye, EyeOff, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import Logo from '@/components/Logo';
 
 export default function LoginPage() {
   const { signIn } = useAuth();
@@ -38,11 +39,9 @@ export default function LoginPage() {
 
           {/* Logo */}
           <div className="flex items-center gap-2.5 mb-8">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-600 to-accent-500 flex items-center justify-center shadow-glow">
-              <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.5} />
-            </div>
+            <Logo className="w-10 h-10 drop-shadow-sm" />
             <div>
-              <h1 className="font-display font-bold text-slate-900 text-lg leading-none">StageÉcole</h1>
+              <h1 className="font-display font-bold text-slate-900 text-lg leading-none">StageIO</h1>
               <p className="text-xs text-slate-400">Gestion des stages</p>
             </div>
           </div>

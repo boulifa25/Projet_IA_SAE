@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom';
-import { GraduationCap, ChevronLeft, LogOut } from 'lucide-react';
+import { ChevronLeft, LogOut } from 'lucide-react';
 import type { UserResponse } from '@/lib/api';
 import type { NavItem } from '@/config/navigation';
+import Logo from '@/components/Logo';
 
 const roleLabels: Record<UserResponse['role'], string> = {
   ETUDIANT: 'Étudiant',
@@ -32,12 +33,10 @@ export default function Sidebar({ user, navItems, collapsed, onToggleCollapse, o
       {/* Logo */}
       <div className="h-16 flex items-center px-4 border-b border-slate-200">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-accent-500 flex items-center justify-center shrink-0 shadow-glow">
-            <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.5} />
-          </div>
+          <Logo className="w-9 h-9 shrink-0 drop-shadow-sm" />
           {!collapsed && (
             <div className="animate-fade-in">
-              <h1 className="font-display font-bold text-slate-900 text-lg leading-none">StageÉcole</h1>
+              <h1 className="font-display font-bold text-slate-900 text-lg leading-none">StageIO</h1>
               <p className="text-xs text-slate-400 mt-0.5">Gestion des stages</p>
             </div>
           )}

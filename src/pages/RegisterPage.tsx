@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  GraduationCap,
   Mail,
   Lock,
   Eye,
@@ -16,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import type { RegisterPayload } from '@/lib/api';
+import Logo from '@/components/Logo';
 
 type RegistrableRole = RegisterPayload['role'];
 
@@ -136,11 +136,9 @@ export default function RegisterPage() {
 
           {/* Logo */}
           <div className="flex items-center gap-2.5 mb-8">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-600 to-accent-500 flex items-center justify-center shadow-glow">
-              <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.5} />
-            </div>
+            <Logo className="w-10 h-10 drop-shadow-sm" />
             <div>
-              <h1 className="font-display font-bold text-slate-900 text-lg leading-none">StageÉcole</h1>
+              <h1 className="font-display font-bold text-slate-900 text-lg leading-none">StageIO</h1>
               <p className="text-xs text-slate-400">Gestion des stages</p>
             </div>
           </div>
@@ -187,130 +185,16 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Nom / Prénom */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Prénom</label>
-                <div className={fieldWrapperClass}>
-                  <input
-                    type="text"
-                    required
-                    value={prenom}
-                    onChange={(e) => setPrenom(e.target.value)}
-                    placeholder="Lucas"
-                    className={inputClass}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Nom</label>
-                <div className={fieldWrapperClass}>
-                  <input
-                    type="text"
-                    required
-                    value={nom}
-                    onChange={(e) => setNom(e.target.value)}
-                    placeholder="Martin"
-                    className={inputClass}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
-              <div className={fieldWrapperClass}>
-                <Mail className="w-5 h-5 text-slate-400" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="vous@ecole.fr"
-                  className={inputClass}
-                />
-              </div>
-            </div>
-
-            {/* Role-specific fields */}
-            {role === 'ETUDIANT' && (
-              <div className="grid grid-cols-2 gap-4 animate-fade-in">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Matricule</label>
-                  <div className={fieldWrapperClass}>
-                    <input
-                      type="text"
-                      value={matricule}
-                      onChange={(e) => setMatricule(e.target.value)}
-                      placeholder="E12345"
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Promotion</label>
-                  <div className={fieldWrapperClass}>
-                    <input
-                      type="text"
-                      value={promotion}
-                      onChange={(e) => setPromotion(e.target.value)}
-                      placeholder="2026"
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Filière</label>
-                  <div className={fieldWrapperClass}>
-                    <input
-                      type="text"
-                      value={filiere}
-                      onChange={(e) => setFiliere(e.target.value)}
-                      placeholder="Informatique"
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {role === 'ENSEIGNANT' && (
-              <div className="grid grid-cols-2 gap-4 animate-fade-in">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Département</label>
-                  <div className={fieldWrapperClass}>
-                    <input
-                      type="text"
-                      value={departement}
-                      onChange={(e) => setDepartement(e.target.value)}
-                      placeholder="Informatique"
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Spécialité</label>
-                  <div className={fieldWrapperClass}>
-                    <input
-                      type="text"
-                      value={specialite}
-                      onChange={(e) => setSpecialite(e.target.value)}
-                      placeholder="Data & IA"
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {role === 'ENTREPRISE' && (
-              <div className="space-y-4 animate-fade-in">
+            {role === 'ENTREPRISE' ? (
+              <div className="space-y-5 animate-fade-in">
+                {/* Identité de l'entreprise, en premier car c'est elle le compte */}
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Raison sociale</label>
                   <div className={fieldWrapperClass}>
+                    <Building2 className="w-5 h-5 text-slate-400" />
                     <input
                       type="text"
+                      required
                       value={raisonSociale}
                       onChange={(e) => setRaisonSociale(e.target.value)}
                       placeholder="TechNova"
@@ -320,7 +204,7 @@ export default function RegisterPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Secteur</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Secteur d'activité</label>
                     <div className={fieldWrapperClass}>
                       <input
                         type="text"
@@ -344,7 +228,173 @@ export default function RegisterPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Personne de contact, distincte de l'entreprise elle-même */}
+                <div className="pt-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Personne de contact</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Prénom</label>
+                      <div className={fieldWrapperClass}>
+                        <input
+                          type="text"
+                          required
+                          value={prenom}
+                          onChange={(e) => setPrenom(e.target.value)}
+                          placeholder="Lucas"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Nom</label>
+                      <div className={fieldWrapperClass}>
+                        <input
+                          type="text"
+                          required
+                          value={nom}
+                          onChange={(e) => setNom(e.target.value)}
+                          placeholder="Martin"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Email professionnel</label>
+                  <div className={fieldWrapperClass}>
+                    <Mail className="w-5 h-5 text-slate-400" />
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="contact@technova.fr"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
               </div>
+            ) : (
+              <>
+                {/* Nom / Prénom */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Prénom</label>
+                    <div className={fieldWrapperClass}>
+                      <input
+                        type="text"
+                        required
+                        value={prenom}
+                        onChange={(e) => setPrenom(e.target.value)}
+                        placeholder="Lucas"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Nom</label>
+                    <div className={fieldWrapperClass}>
+                      <input
+                        type="text"
+                        required
+                        value={nom}
+                        onChange={(e) => setNom(e.target.value)}
+                        placeholder="Martin"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+                  <div className={fieldWrapperClass}>
+                    <Mail className="w-5 h-5 text-slate-400" />
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="vous@ecole.fr"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+
+                {role === 'ETUDIANT' && (
+                  <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Matricule</label>
+                      <div className={fieldWrapperClass}>
+                        <input
+                          type="text"
+                          value={matricule}
+                          onChange={(e) => setMatricule(e.target.value)}
+                          placeholder="E12345"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Promotion</label>
+                      <div className={fieldWrapperClass}>
+                        <input
+                          type="text"
+                          value={promotion}
+                          onChange={(e) => setPromotion(e.target.value)}
+                          placeholder="2026"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Filière</label>
+                      <div className={fieldWrapperClass}>
+                        <input
+                          type="text"
+                          value={filiere}
+                          onChange={(e) => setFiliere(e.target.value)}
+                          placeholder="Informatique"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {role === 'ENSEIGNANT' && (
+                  <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Département</label>
+                      <div className={fieldWrapperClass}>
+                        <input
+                          type="text"
+                          value={departement}
+                          onChange={(e) => setDepartement(e.target.value)}
+                          placeholder="Informatique"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Spécialité</label>
+                      <div className={fieldWrapperClass}>
+                        <input
+                          type="text"
+                          value={specialite}
+                          onChange={(e) => setSpecialite(e.target.value)}
+                          placeholder="Data & IA"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {/* Password */}

@@ -29,7 +29,7 @@ import java.util.List;
 public class ChatbotService {
 
     private static final String CONNAISSANCE_PLATEFORME = """
-            Tu es l'assistant virtuel de StageÉcole, une plateforme de gestion de stages. Tu réponds aux
+            Tu es l'assistant virtuel de StageIO, une plateforme de gestion de stages. Tu réponds aux
             questions administratives et procédurales des utilisateurs de façon claire, concise (quelques
             phrases maximum) et bienveillante, uniquement en français.
 

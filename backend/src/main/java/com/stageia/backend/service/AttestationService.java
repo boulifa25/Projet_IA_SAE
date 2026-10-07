@@ -47,7 +47,7 @@ public class AttestationService {
                 cs.newLineAtOffset(margin, y);
 
                 String[] lines = {
-                        "L'école StageÉcole atteste que :",
+                        "L'école StageIO atteste que :",
                         "",
                         etudiant.getPrenom() + " " + etudiant.getNom() + (etudiant.getMatricule() != null ? " (matricule " + etudiant.getMatricule() + ")" : ""),
                         "",
@@ -72,7 +72,7 @@ public class AttestationService {
                 cs.beginText();
                 cs.setFont(fontRegular, 9);
                 cs.newLineAtOffset(margin, 80);
-                cs.showText("Document généré automatiquement par la plateforme StageÉcole.");
+                cs.showText("Document généré automatiquement par la plateforme StageIO.");
                 cs.endText();
             }
 

@@ -8,6 +8,7 @@ import com.stageia.backend.model.Enseignant;
 import com.stageia.backend.model.Stage;
 import com.stageia.backend.model.StatutConvention;
 import com.stageia.backend.model.StatutStage;
+import com.stageia.backend.model.TypeNotification;
 import com.stageia.backend.repository.ConventionRepository;
 import com.stageia.backend.repository.StageRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class ConventionService {
 
     private final ConventionRepository conventionRepository;
     private final StageRepository stageRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public Convention genererPourCandidature(Candidature candidature) {
@@ -112,6 +114,11 @@ public class ConventionService {
                 stage.setDateFin(convention.getDateFin());
                 stage.setStatut(StatutStage.EN_COURS);
                 stageRepository.save(stage);
+
+                notificationService.creer(convention.getCandidature().getEtudiant(), TypeNotification.CONVENTION,
+                        "Votre stage a démarré",
+                        "Votre convention " + convention.getReference() + " est validée, votre stage est officiellement en cours.",
+                        "/app/etudiant/stage");
             }
         }
     }

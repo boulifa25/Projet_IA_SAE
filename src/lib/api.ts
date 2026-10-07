@@ -8,6 +8,15 @@ export interface UserResponse {
   prenom: string;
   email: string;
   role: Role;
+  dateCreation: string;
+  matricule?: string | null;
+  filiere?: string | null;
+  promotion?: string | null;
+  departement?: string | null;
+  specialite?: string | null;
+  raisonSociale?: string | null;
+  secteur?: string | null;
+  adresse?: string | null;
 }
 
 export interface AuthResponse {
@@ -425,6 +434,26 @@ export const messagesApi = {
   envoyer: (stageId: number, contenu: string, token: string) =>
     apiFetch<MessageResponse>('/api/messages', { method: 'POST', body: JSON.stringify({ stageId, contenu }) }, token),
   parStage: (stageId: number, token: string) => apiFetch<MessageResponse[]>(`/api/messages/stage/${stageId}`, {}, token),
+};
+
+export type TypeNotification = 'OFFRE' | 'MESSAGE' | 'CANDIDATURE' | 'CONVENTION' | 'SOUTENANCE' | 'EVALUATION';
+
+export interface NotificationResponse {
+  id: number;
+  type: TypeNotification;
+  titre: string;
+  message: string;
+  lien: string | null;
+  lu: boolean;
+  dateCreation: string;
+}
+
+export const notificationsApi = {
+  lister: (token: string) => apiFetch<NotificationResponse[]>('/api/notifications', {}, token),
+  nonLues: (token: string) => apiFetch<{ count: number }>('/api/notifications/non-lues', {}, token),
+  marquerLue: (id: number, token: string) =>
+    apiFetch<NotificationResponse>(`/api/notifications/${id}/lire`, { method: 'POST' }, token),
+  marquerToutesLues: (token: string) => apiFetch<void>('/api/notifications/lire-tout', { method: 'POST' }, token),
 };
 
 export const rapportsApi = {

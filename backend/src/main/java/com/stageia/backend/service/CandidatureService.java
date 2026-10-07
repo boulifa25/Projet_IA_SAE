@@ -10,6 +10,7 @@ import com.stageia.backend.model.Offre;
 import com.stageia.backend.model.Role;
 import com.stageia.backend.model.StatutCandidature;
 import com.stageia.backend.model.StatutOffre;
+import com.stageia.backend.model.TypeNotification;
 import com.stageia.backend.model.Utilisateur;
 import com.stageia.backend.repository.CandidatureRepository;
 import com.stageia.backend.repository.OffreRepository;
@@ -30,6 +31,7 @@ public class CandidatureService {
     private final OffreRepository offreRepository;
     private final FileStorageService fileStorageService;
     private final ConventionService conventionService;
+    private final NotificationService notificationService;
 
     @Transactional
     public CandidatureResponse postuler(Long offreId, String lettreMotivation, MultipartFile cv, Etudiant etudiant) {
@@ -86,14 +88,24 @@ public class CandidatureService {
             throw new AccessDeniedException("Cette candidature ne concerne pas une de vos offres.");
         }
 
-        boolean vientDetreAcceptee = nouveauStatut == StatutCandidature.ACCEPTEE
-                && candidature.getStatut() != StatutCandidature.ACCEPTEE;
+        StatutCandidature ancienStatut = candidature.getStatut();
+        boolean vientDetreAcceptee = nouveauStatut == StatutCandidature.ACCEPTEE && ancienStatut != StatutCandidature.ACCEPTEE;
+        boolean vientDetreRefusee = nouveauStatut == StatutCandidature.REFUSEE && ancienStatut != StatutCandidature.REFUSEE;
 
         candidature.setStatut(nouveauStatut);
         Candidature saved = candidatureRepository.save(candidature);
 
         if (vientDetreAcceptee) {
             conventionService.genererPourCandidature(saved);
+            notificationService.creer(saved.getEtudiant(), TypeNotification.CANDIDATURE,
+                    "Candidature acceptée",
+                    "Votre candidature pour \"" + saved.getOffre().getTitre() + "\" a été acceptée par " + saved.getOffre().getEntreprise().getRaisonSociale() + ".",
+                    "/app/etudiant/candidatures");
+        } else if (vientDetreRefusee) {
+            notificationService.creer(saved.getEtudiant(), TypeNotification.CANDIDATURE,
+                    "Candidature refusée",
+                    "Votre candidature pour \"" + saved.getOffre().getTitre() + "\" n'a pas été retenue.",
+                    "/app/etudiant/candidatures");
         }
 
         return new CandidatureResponse(saved);

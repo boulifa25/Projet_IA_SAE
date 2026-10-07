@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="pin" x1="20" y1="5" x2="75" y2="92" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="cap" x1="7" y1="2" x2="93" y2="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#67e8f9" />
+      <stop offset="100%" stop-color="#0891b2" />
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M50 92C50 92 17 54 17 36A33 33 0 1 1 83 36C83 54 50 92 50 92Z
+       M50 46m-13 0a13 13 0 1 0 26 0a13 13 0 1 0 -26 0Z"
+    fill="url(#pin)"
+    fill-rule="evenodd"
+  />
+
+  <ellipse cx="50" cy="33" rx="17" ry="11" fill="url(#cap)" />
+
+  <path d="M50 2 93 20 50 38 7 20Z" fill="url(#cap)" />
+  <path d="M18 17Q50 28 82 17" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" />
+
+  <path d="M93 20 97 38" stroke="white" stroke-width="3" stroke-linecap="round" />
+  <rect x="93.5" y="36" width="7" height="7" rx="1.5" fill="white" transform="rotate(20 97 39.5)" />
+</svg>

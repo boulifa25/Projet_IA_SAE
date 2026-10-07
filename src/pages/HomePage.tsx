@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import {
-  GraduationCap,
   Briefcase,
   FileText,
   Building2,
@@ -12,6 +11,7 @@ import {
   Sparkles,
   Star,
 } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 const features = [
   {
@@ -60,11 +60,9 @@ export default function HomePage() {
       <nav className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-accent-500 flex items-center justify-center shadow-glow">
-              <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.5} />
-            </div>
+            <Logo className="w-9 h-9 drop-shadow-sm" />
             <div>
-              <h1 className="font-display font-bold text-slate-900 text-lg leading-none">StageÉcole</h1>
+              <h1 className="font-display font-bold text-slate-900 text-lg leading-none">StageIO</h1>
               <p className="text-xs text-slate-400">Gestion des stages</p>
             </div>
           </div>
@@ -271,7 +269,7 @@ export default function HomePage() {
                 Prêt à digitaliser la gestion de vos stages ?
               </h2>
               <p className="text-primary-100 text-lg mb-8 max-w-xl mx-auto">
-                Rejoignez les écoles qui font confiance à StageÉcole pour placer leurs étudiants.
+                Rejoignez les écoles qui font confiance à StageIO pour placer leurs étudiants.
               </p>
               <Link
                 to="/register"
@@ -289,12 +287,10 @@ export default function HomePage() {
       <footer className="border-t border-slate-100 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-600 to-accent-500 flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-white" strokeWidth={2.5} />
-            </div>
-            <span className="font-display font-bold text-slate-900">StageÉcole</span>
+            <Logo className="w-7 h-7" />
+            <span className="font-display font-bold text-slate-900">StageIO</span>
           </div>
-          <p className="text-sm text-slate-400">© 2026 StageÉcole. Tous droits réservés.</p>
+          <p className="text-sm text-slate-400">© 2026 StageIO. Tous droits réservés.</p>
         </div>
       </footer>
     </div>

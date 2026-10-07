@@ -6,6 +6,7 @@ import com.stageia.backend.exception.ConflictException;
 import com.stageia.backend.exception.ResourceNotFoundException;
 import com.stageia.backend.model.Soutenance;
 import com.stageia.backend.model.Stage;
+import com.stageia.backend.model.TypeNotification;
 import com.stageia.backend.model.Utilisateur;
 import com.stageia.backend.repository.SoutenanceRepository;
 import com.stageia.backend.repository.StageRepository;
@@ -22,6 +23,7 @@ public class SoutenanceService {
     private final SoutenanceRepository soutenanceRepository;
     private final StageRepository stageRepository;
     private final StageService stageService;
+    private final NotificationService notificationService;
 
     @Transactional
     public SoutenanceResponse planifier(SoutenanceRequest request) {
@@ -38,7 +40,14 @@ public class SoutenanceService {
         soutenance.setLieuOuLien(request.getLieuOuLien());
         soutenance.setJury(request.getJury() != null ? request.getJury() : List.of());
 
-        return new SoutenanceResponse(soutenanceRepository.save(soutenance));
+        Soutenance saved = soutenanceRepository.save(soutenance);
+
+        notificationService.creer(stage.getConvention().getCandidature().getEtudiant(), TypeNotification.SOUTENANCE,
+                "Soutenance planifiée",
+                "Votre soutenance est prévue le " + java.time.LocalDate.ofInstant(saved.getDateSoutenance(), java.time.ZoneId.systemDefault()) + " à " + saved.getLieuOuLien() + ".",
+                "/app/etudiant/stage");
+
+        return new SoutenanceResponse(saved);
     }
 
     @Transactional(readOnly = true)

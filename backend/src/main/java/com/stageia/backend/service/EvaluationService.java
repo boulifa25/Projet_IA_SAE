@@ -10,6 +10,7 @@ import com.stageia.backend.model.Soutenance;
 import com.stageia.backend.model.Stage;
 import com.stageia.backend.model.StatutSoutenance;
 import com.stageia.backend.model.StatutStage;
+import com.stageia.backend.model.TypeNotification;
 import com.stageia.backend.model.Utilisateur;
 import com.stageia.backend.repository.EvaluationRepository;
 import com.stageia.backend.repository.SoutenanceRepository;
@@ -32,6 +33,7 @@ public class EvaluationService {
     private final SoutenanceService soutenanceService;
     private final AttestationService attestationService;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
 
     @Transactional
     public List<EvaluationResponse> soumettre(Long soutenanceId, List<CritereNote> notes, Utilisateur evaluateur) {
@@ -96,6 +98,11 @@ public class EvaluationService {
 
         soutenance.setStatut(StatutSoutenance.REALISEE);
         soutenanceRepository.save(soutenance);
+
+        notificationService.creer(stage.getConvention().getCandidature().getEtudiant(), TypeNotification.EVALUATION,
+                "Note finale disponible",
+                "Votre note finale est de " + noteFinale + "/20. Votre attestation est téléchargeable.",
+                "/app/etudiant/stage");
 
         return new SoutenanceResponse(soutenance);
     }

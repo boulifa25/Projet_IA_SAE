@@ -5,9 +5,12 @@ import com.stageia.backend.dto.OffreResponse;
 import com.stageia.backend.exception.ConflictException;
 import com.stageia.backend.exception.ResourceNotFoundException;
 import com.stageia.backend.model.Entreprise;
+import com.stageia.backend.model.Etudiant;
 import com.stageia.backend.model.Offre;
 import com.stageia.backend.model.StatutOffre;
+import com.stageia.backend.model.TypeNotification;
 import com.stageia.backend.repository.CandidatureRepository;
+import com.stageia.backend.repository.EtudiantRepository;
 import com.stageia.backend.repository.OffreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,6 +25,8 @@ public class OffreService {
 
     private final OffreRepository offreRepository;
     private final CandidatureRepository candidatureRepository;
+    private final EtudiantRepository etudiantRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public OffreResponse creer(OffreRequest request, Entreprise entreprise) {
@@ -50,7 +55,17 @@ public class OffreService {
             throw new ConflictException("Impossible de publier une offre clôturée.");
         }
         offre.setStatut(StatutOffre.PUBLIEE);
-        return toResponse(offreRepository.save(offre));
+        Offre saved = offreRepository.save(offre);
+
+        if (saved.getFiliere() != null && !saved.getFiliere().isBlank()) {
+            List<Etudiant> etudiantsConcernes = etudiantRepository.findByFiliere(saved.getFiliere());
+            notificationService.creerPourPlusieurs(etudiantsConcernes, TypeNotification.OFFRE,
+                    "Nouvelle offre dans votre filière",
+                    saved.getEntreprise().getRaisonSociale() + " a publié \"" + saved.getTitre() + "\" pour la filière " + saved.getFiliere() + ".",
+                    "/app/etudiant/offres");
+        }
+
+        return toResponse(saved);
     }
 
     @Transactional
