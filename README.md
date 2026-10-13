@@ -7,7 +7,7 @@ Plateforme complète de gestion de stages (offres, candidatures, conventions, su
 - **Frontend** : React 18 + TypeScript + Vite + Tailwind CSS + React Router
 - **Backend** : Spring Boot 4 (Java 17) + Spring Security (JWT) + Spring Data JPA
 - **Base de données** : PostgreSQL (hébergé sur [Neon](https://neon.tech))
-- **IA** : Google Gemini (API gratuite, sans carte bancaire)
+- **IA** : Groq (API gratuite, sans carte bancaire — modèle Llama 3.3 70B)
 - **Stockage fichiers** : disque local (CV, rapports, attestations générées)
 
 ## Architecture
@@ -19,7 +19,7 @@ Le backend suit un modèle MVC étendu : **Contrôleurs** → **Services** (dont
 - [Node.js](https://nodejs.org) (18+)
 - [Java 17](https://adoptium.net)
 - Un compte [Neon](https://console.neon.tech) (gratuit) pour la base de données
-- Une clé API [Google Gemini](https://aistudio.google.com/apikey) (gratuite, sans carte bancaire)
+- Une clé API [Groq](https://console.groq.com/keys) (gratuite, sans carte bancaire)
 
 ## Installation
 
@@ -89,7 +89,7 @@ Aucun autre compte n'est pré-rempli : créez vos comptes de test via "Créer un
 │       ├── service/      Logique métier + services IA
 │       ├── model/        Entités JPA
 │       ├── repository/   Accès base de données
-│       ├── dto/           Objets de transfert (dont dto/gemini, dto/ia)
+│       ├── dto/           Objets de transfert (dont dto/groq, dto/ia)
 │       └── security/     JWT, Spring Security
 └── src/              Frontend React
     ├── pages/roles/      Pages par espace (étudiant/entreprise/enseignant/admin)

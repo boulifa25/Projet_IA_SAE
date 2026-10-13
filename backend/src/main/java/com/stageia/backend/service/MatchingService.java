@@ -39,7 +39,7 @@ public class MatchingService {
             """;
 
     private final OffreRepository offreRepository;
-    private final GeminiService geminiService;
+    private final LlmService llmService;
     private final ObjectMapper objectMapper;
 
     @Transactional(readOnly = true)
@@ -51,7 +51,7 @@ public class MatchingService {
         }
 
         String contexte = construireContexte(etudiant, offres);
-        String reponseBrute = geminiService.demander(SYSTEM_PROMPT, contexte);
+        String reponseBrute = llmService.demander(SYSTEM_PROMPT, contexte);
         OffreMatchingResultat[] resultats = objectMapper.readValue(nettoyerJson(reponseBrute), OffreMatchingResultat[].class);
 
         return Arrays.asList(resultats);

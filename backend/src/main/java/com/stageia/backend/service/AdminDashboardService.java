@@ -37,10 +37,7 @@ public class AdminDashboardService {
 
         long candidaturesTotal = candidatureRepository.count();
 
-        long etudiantsPlaces = stageRepository.findAll().stream()
-                .map(s -> s.getConvention().getCandidature().getEtudiant().getId())
-                .distinct()
-                .count();
+        long etudiantsPlaces = stageRepository.countDistinctEtudiants();
 
         long entreprisesPartenaires = entrepriseRepository.count();
 

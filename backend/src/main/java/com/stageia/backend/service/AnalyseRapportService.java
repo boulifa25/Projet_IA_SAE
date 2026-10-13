@@ -48,7 +48,7 @@ public class AnalyseRapportService {
             persistant, isolement), pas juste une difficulté technique ponctuelle mentionnée avec sérénité.
             """;
 
-    private final GeminiService geminiService;
+    private final LlmService llmService;
     private final RapportRepository rapportRepository;
     private final MessageRepository messageRepository;
     private final RecommandationIARepository recommandationIARepository;
@@ -67,7 +67,7 @@ public class AnalyseRapportService {
 
         try {
             String contexte = construireContexte(rapport, stage);
-            String reponseBrute = geminiService.demander(SYSTEM_PROMPT, contexte);
+            String reponseBrute = llmService.demander(SYSTEM_PROMPT, contexte);
             AnalyseResultat resultat = objectMapper.readValue(nettoyerJson(reponseBrute), AnalyseResultat.class);
 
             enregistrer(stage, rapport, TypeRecommandation.RESUME_RAPPORT, formaterResume(resultat), null);

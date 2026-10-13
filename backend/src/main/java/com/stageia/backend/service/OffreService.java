@@ -17,7 +17,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -77,22 +79,17 @@ public class OffreService {
 
     @Transactional(readOnly = true)
     public List<OffreResponse> listerToutes() {
-        return offreRepository.findAll().stream()
-                .sorted((a, b) -> b.getDateCreation().compareTo(a.getDateCreation()))
-                .map(this::toResponse)
-                .toList();
+        return toResponseList(offreRepository.findAllByOrderByDateCreationDesc());
     }
 
     @Transactional(readOnly = true)
     public List<OffreResponse> listerPubliees() {
-        return offreRepository.findByStatutOrderByDateCreationDesc(StatutOffre.PUBLIEE)
-                .stream().map(this::toResponse).toList();
+        return toResponseList(offreRepository.findByStatutOrderByDateCreationDesc(StatutOffre.PUBLIEE));
     }
 
     @Transactional(readOnly = true)
     public List<OffreResponse> listerMesOffres(Entreprise entreprise) {
-        return offreRepository.findByEntrepriseOrderByDateCreationDesc(entreprise)
-                .stream().map(this::toResponse).toList();
+        return toResponseList(offreRepository.findByEntrepriseOrderByDateCreationDesc(entreprise));
     }
 
     @Transactional(readOnly = true)
@@ -131,5 +128,20 @@ public class OffreService {
 
     private OffreResponse toResponse(Offre offre) {
         return new OffreResponse(offre, candidatureRepository.countByOffre(offre));
+    }
+
+    private List<OffreResponse> toResponseList(List<Offre> offres) {
+        if (offres.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, Long> comptesParOffre = new HashMap<>();
+        for (CandidatureRepository.OffreCandidatureCount compte : candidatureRepository.countGroupedByOffre(offres)) {
+            comptesParOffre.put(compte.getOffreId(), compte.getTotal());
+        }
+
+        return offres.stream()
+                .map(offre -> new OffreResponse(offre, comptesParOffre.getOrDefault(offre.getId(), 0L)))
+                .toList();
     }
 }

@@ -59,7 +59,7 @@ public class ChatbotService {
     private final OffreService offreService;
     private final AdminDashboardService adminDashboardService;
     private final SoutenanceService soutenanceService;
-    private final GeminiService geminiService;
+    private final LlmService llmService;
 
     @Transactional(readOnly = true)
     public String repondre(String message, List<ConversationMessage> historique, Utilisateur utilisateur) {
@@ -68,7 +68,7 @@ public class ChatbotService {
         List<ConversationMessage> conversation = new java.util.ArrayList<>(historique);
         conversation.add(new ConversationMessage("user", message));
 
-        return geminiService.demanderAvecHistorique(systemPrompt, conversation);
+        return llmService.demanderAvecHistorique(systemPrompt, conversation);
     }
 
     private String construireContextePersonnalise(Utilisateur utilisateur) {

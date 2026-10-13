@@ -37,6 +37,6 @@ app:
   upload:
     dir: ${UPLOAD_DIR:uploads}
 
-gemini:
-  api-key: ${GEMINI_API_KEY:}
-  model: ${GEMINI_MODEL:gemini-3.8-flash}
+groq:
+  api-key: ${GROQ_API_KEY:}
+  model: ${GROQ_MODEL:openai/gpt-oss-120b}
