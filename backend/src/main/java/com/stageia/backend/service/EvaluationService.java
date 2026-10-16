@@ -34,6 +34,7 @@ public class EvaluationService {
     private final AttestationService attestationService;
     private final FileStorageService fileStorageService;
     private final NotificationService notificationService;
+    private final EvaluationAnalysisService evaluationAnalysisService;
 
     @Transactional
     public List<EvaluationResponse> soumettre(Long soutenanceId, List<CritereNote> notes, Utilisateur evaluateur) {
@@ -103,6 +104,8 @@ public class EvaluationService {
                 "Note finale disponible",
                 "Votre note finale est de " + noteFinale + "/20. Votre attestation est téléchargeable.",
                 "/app/etudiant/stage");
+
+        evaluationAnalysisService.analyserEtNotifierSiEcart(evaluations, stage);
 
         return new SoutenanceResponse(soutenance);
     }

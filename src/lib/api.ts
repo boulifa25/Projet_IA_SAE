@@ -186,6 +186,18 @@ export interface OffreMatchingResultat {
   raison: string;
 }
 
+export interface CandidaturePreselectionResultat {
+  candidatureId: number;
+  score: number;
+  raison: string;
+}
+
+export interface ConventionMatchingResultat {
+  conventionId: number;
+  score: number;
+  raison: string;
+}
+
 export const offresApi = {
   list: (token: string) => apiFetch<OffreResponse[]>('/api/offres', {}, token),
   toutes: (token: string) => apiFetch<OffreResponse[]>('/api/offres/toutes', {}, token),
@@ -235,6 +247,9 @@ export const candidaturesApi = {
 
   changerStatut: (id: number, statut: StatutCandidature, token: string) =>
     apiFetch<CandidatureResponse>(`/api/candidatures/${id}/statut`, { method: 'PATCH', body: JSON.stringify({ statut }) }, token),
+
+  preselection: (offreId: number, token: string) =>
+    apiFetch<CandidaturePreselectionResultat[]>(`/api/candidatures/offre/${offreId}/preselection`, {}, token),
 
   getCvBlob: async (id: number, token: string): Promise<Blob> => {
     const response = await fetch(`${API_URL}/api/candidatures/${id}/cv`, {
@@ -297,6 +312,7 @@ export interface RapportResponse {
 
 export const conventionsApi = {
   enAttenteEnseignant: (token: string) => apiFetch<ConventionResponse[]>('/api/conventions/en-attente-enseignant', {}, token),
+  matchingEnAttente: (token: string) => apiFetch<ConventionMatchingResultat[]>('/api/conventions/en-attente-enseignant/matching', {}, token),
   mesConventions: (token: string) => apiFetch<ConventionResponse[]>('/api/conventions/mes-conventions', {}, token),
   validerEnseignant: (id: number, token: string) =>
     apiFetch<ConventionResponse>(`/api/conventions/${id}/valider-enseignant`, { method: 'POST' }, token),
@@ -391,7 +407,7 @@ export const evaluationsApi = {
     apiFetch<SoutenanceResponse>(`/api/evaluations/soutenance/${soutenanceId}/finaliser`, { method: 'POST' }, token),
 };
 
-export type TypeRecommandation = 'RESUME_RAPPORT' | 'ALERTE_RISQUE' | 'CONSEIL' | 'MATCHING_OFFRE';
+export type TypeRecommandation = 'RESUME_RAPPORT' | 'ALERTE_RISQUE' | 'CONSEIL' | 'MATCHING_OFFRE' | 'SYNTHESE_PARCOURS';
 export type NiveauRisque = 'FAIBLE' | 'MOYEN' | 'ELEVE';
 
 export interface RecommandationIAResponse {
@@ -418,6 +434,8 @@ export const recommandationsApi = {
   parStage: (stageId: number, token: string) =>
     apiFetch<RecommandationIAResponse[]>(`/api/recommandations/stage/${stageId}`, {}, token),
   mesAlertes: (token: string) => apiFetch<AlerteRisqueResponse[]>('/api/recommandations/mes-alertes', {}, token),
+  genererSynthese: (stageId: number, token: string) =>
+    apiFetch<RecommandationIAResponse>(`/api/recommandations/stage/${stageId}/synthese`, { method: 'POST' }, token),
 };
 
 export interface ChatMessage {

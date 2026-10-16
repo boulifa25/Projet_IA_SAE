@@ -1,6 +1,7 @@
 package com.stageia.backend.service;
 
 import com.stageia.backend.dto.ia.OffreMatchingResultat;
+import com.stageia.backend.exception.IAServiceException;
 import com.stageia.backend.model.Etudiant;
 import com.stageia.backend.model.Offre;
 import com.stageia.backend.model.StatutOffre;
@@ -52,9 +53,14 @@ public class MatchingService {
 
         String contexte = construireContexte(etudiant, offres);
         String reponseBrute = llmService.demander(SYSTEM_PROMPT, contexte);
-        OffreMatchingResultat[] resultats = objectMapper.readValue(nettoyerJson(reponseBrute), OffreMatchingResultat[].class);
 
-        return Arrays.asList(resultats);
+        try {
+            OffreMatchingResultat[] resultats = objectMapper.readValue(nettoyerJson(reponseBrute), OffreMatchingResultat[].class);
+            return Arrays.asList(resultats);
+        } catch (Exception e) {
+            log.error("Réponse IA invalide pour le matching CV/offres : {}", reponseBrute, e);
+            throw new IAServiceException("Le service IA a renvoyé une réponse invalide. Réessayez dans quelques instants.", e);
+        }
     }
 
     private String construireContexte(Etudiant etudiant, List<Offre> offres) {

@@ -67,7 +67,7 @@ public class ConventionService {
                 .stream().map(ConventionResponse::new).toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, noRollbackFor = ResourceNotFoundException.class)
     public ConventionResponse getMaConvention(Long etudiantId) {
         List<Convention> conventions = conventionRepository.findByCandidature_Etudiant_IdOrderByDateGenerationDesc(etudiantId);
         if (conventions.isEmpty()) {

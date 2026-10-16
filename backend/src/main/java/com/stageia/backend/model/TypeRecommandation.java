@@ -4,5 +4,6 @@ public enum TypeRecommandation {
     RESUME_RAPPORT,
     ALERTE_RISQUE,
     CONSEIL,
-    MATCHING_OFFRE
+    MATCHING_OFFRE,
+    SYNTHESE_PARCOURS
 }

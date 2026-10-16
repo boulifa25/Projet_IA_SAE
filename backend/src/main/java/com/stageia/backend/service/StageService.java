@@ -24,7 +24,7 @@ public class StageService {
     private final RapportRepository rapportRepository;
     private final FileStorageService fileStorageService;
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, noRollbackFor = ResourceNotFoundException.class)
     public StageResponse getMonStage(Long etudiantId) {
         List<Stage> stages = stageRepository.findByConvention_Candidature_Etudiant_IdOrderByDateCreationDesc(etudiantId);
         if (stages.isEmpty()) {

@@ -1,8 +1,10 @@
 package com.stageia.backend.controller;
 
 import com.stageia.backend.dto.ConventionResponse;
+import com.stageia.backend.dto.ia.ConventionMatchingResultat;
 import com.stageia.backend.model.Enseignant;
 import com.stageia.backend.security.UserPrincipal;
+import com.stageia.backend.service.ConventionMatchingService;
 import com.stageia.backend.service.ConventionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,11 +23,18 @@ import java.util.List;
 public class ConventionController {
 
     private final ConventionService conventionService;
+    private final ConventionMatchingService conventionMatchingService;
 
     @GetMapping("/en-attente-enseignant")
     @PreAuthorize("hasRole('ENSEIGNANT')")
     public List<ConventionResponse> enAttenteEnseignant() {
         return conventionService.listerEnAttenteEnseignant();
+    }
+
+    @GetMapping("/en-attente-enseignant/matching")
+    @PreAuthorize("hasRole('ENSEIGNANT')")
+    public List<ConventionMatchingResultat> matchingEnAttenteEnseignant(@AuthenticationPrincipal UserPrincipal principal) {
+        return conventionMatchingService.calculerMatching((Enseignant) principal.getUtilisateur());
     }
 
     @GetMapping("/mes-conventions")

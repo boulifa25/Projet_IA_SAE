@@ -49,7 +49,13 @@ public class LlmService {
         messages.add(new GroqMessage("system", systemPrompt));
         historique.forEach(m -> messages.add(new GroqMessage(mapRole(m.role()), m.contenu())));
 
-        GroqRequest request = new GroqRequest(model, messages, 1024);
+        // gpt-oss est un modèle "raisonnement" : il consomme une partie du budget de tokens pour son
+        // raisonnement interne avant de produire la réponse finale, donc une marge généreuse est
+        // nécessaire pour éviter qu'un JSON (tableau de scores...) soit tronqué en sortie.
+        // reasoning_effort=low : ce modèle "raisonne" en interne avant de répondre, ce qui peut
+        // consommer l'essentiel du budget de tokens sur des tâches simples (score JSON, réponse
+        // courte) et tronquer la sortie utile. "low" garde un raisonnement minimal, suffisant ici.
+        GroqRequest request = new GroqRequest(model, messages, 2048, "low");
 
         RestClientException derniereErreur = null;
 

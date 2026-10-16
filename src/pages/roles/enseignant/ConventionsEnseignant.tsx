@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FileCheck, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { FileCheck, Loader2, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { conventionsApi, ApiError, type ConventionResponse } from '@/lib/api';
 
@@ -7,6 +7,7 @@ export default function ConventionsEnseignant() {
   const { token } = useAuth();
   const [enAttente, setEnAttente] = useState<ConventionResponse[]>([]);
   const [mesConventions, setMesConventions] = useState<ConventionResponse[]>([]);
+  const [scores, setScores] = useState<Record<number, { score: number; raison: string }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
@@ -21,6 +22,14 @@ export default function ConventionsEnseignant() {
       ]);
       setEnAttente(attente);
       setMesConventions(mes);
+
+      conventionsApi.matchingEnAttente(token)
+        .then((resultats) => {
+          const map: Record<number, { score: number; raison: string }> = {};
+          resultats.forEach((r) => { map[r.conventionId] = { score: r.score, raison: r.raison }; });
+          setScores(map);
+        })
+        .catch(() => { /* score IA indisponible : la liste reste utilisable sans */ });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Impossible de charger les conventions.');
     } finally {
@@ -32,6 +41,8 @@ export default function ConventionsEnseignant() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
+  const enAttenteTriee = [...enAttente].sort((a, b) => (scores[b.id]?.score ?? -1) - (scores[a.id]?.score ?? -1));
 
   const handleValider = async (id: number) => {
     if (!token) return;
@@ -72,13 +83,28 @@ export default function ConventionsEnseignant() {
           <p className="text-sm text-slate-400 text-center py-10">Aucune convention en attente.</p>
         ) : (
           <div className="divide-y divide-slate-50">
-            {enAttente.map((c) => (
+            {enAttenteTriee.map((c) => {
+              const scoreIA = scores[c.id];
+              const scoreColor = scoreIA
+                ? scoreIA.score >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : scoreIA.score >= 40 ? 'bg-amber-50 text-amber-700 border-amber-200'
+                  : 'bg-slate-100 text-slate-500 border-slate-200'
+                : '';
+              return (
               <div key={c.id} className="flex items-center gap-4 px-5 py-4">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-accent-100 flex items-center justify-center text-sm font-bold text-primary-700 shrink-0">
                   {c.etudiantPrenom[0]}{c.etudiantNom[0]}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-900 truncate">{c.etudiantPrenom} {c.etudiantNom}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{c.etudiantPrenom} {c.etudiantNom}</p>
+                    {scoreIA && (
+                      <span title={scoreIA.raison} className={`flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded-md border shrink-0 ${scoreColor}`}>
+                        <Sparkles className="w-2.5 h-2.5" />
+                        {scoreIA.score}%
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-slate-400 truncate">{c.offreTitre} · {c.entrepriseNom}</p>
                 </div>
                 <span className="text-xs font-mono text-slate-400 shrink-0">{c.reference}</span>
@@ -91,7 +117,8 @@ export default function ConventionsEnseignant() {
                   Valider
                 </button>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

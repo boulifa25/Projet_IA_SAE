@@ -58,7 +58,7 @@ public class SoutenanceService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, noRollbackFor = ResourceNotFoundException.class)
     public SoutenanceResponse getPourStage(Long stageId, Utilisateur utilisateur) {
         stageService.getStageAccessible(stageId, utilisateur);
         Soutenance soutenance = soutenanceRepository.findByStage_Id(stageId)

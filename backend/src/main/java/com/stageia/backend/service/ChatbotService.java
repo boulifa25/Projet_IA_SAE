@@ -121,6 +121,8 @@ public class ChatbotService {
             sb.append("- Stage chez ").append(stage.getEntrepriseNom())
                     .append(", statut ").append(stage.getStatut())
                     .append(", ").append(stage.getNombreRapports()).append(" rapport(s) déposé(s).\n");
+            sb.append("- Enseignant référent (encadrant académique) : ")
+                    .append(stage.getEnseignantNom() != null ? stage.getEnseignantNom() : "non assigné").append("\n");
         } catch (ResourceNotFoundException e) {
             sb.append("- Aucun stage actif pour le moment.\n");
         }

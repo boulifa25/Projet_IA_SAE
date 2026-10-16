@@ -2,10 +2,12 @@ package com.stageia.backend.controller;
 
 import com.stageia.backend.dto.CandidatureResponse;
 import com.stageia.backend.dto.StatutCandidatureRequest;
+import com.stageia.backend.dto.ia.CandidaturePreselectionResultat;
 import com.stageia.backend.model.Entreprise;
 import com.stageia.backend.model.Etudiant;
 import com.stageia.backend.security.UserPrincipal;
 import com.stageia.backend.service.CandidatureService;
+import com.stageia.backend.service.PreselectionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +39,7 @@ import java.util.List;
 public class CandidatureController {
 
     private final CandidatureService candidatureService;
+    private final PreselectionService preselectionService;
 
     @GetMapping("/toutes")
     @PreAuthorize("hasRole('ADMINISTRATEUR')")
@@ -75,6 +78,12 @@ public class CandidatureController {
                                               @Valid @RequestBody StatutCandidatureRequest request,
                                               @AuthenticationPrincipal UserPrincipal principal) {
         return candidatureService.changerStatut(id, request.getStatut(), (Entreprise) principal.getUtilisateur());
+    }
+
+    @GetMapping("/offre/{offreId}/preselection")
+    @PreAuthorize("hasRole('ENTREPRISE')")
+    public List<CandidaturePreselectionResultat> preselection(@PathVariable Long offreId, @AuthenticationPrincipal UserPrincipal principal) {
+        return preselectionService.calculerPreselection(offreId, (Entreprise) principal.getUtilisateur());
     }
 
     @GetMapping("/{id}/cv")

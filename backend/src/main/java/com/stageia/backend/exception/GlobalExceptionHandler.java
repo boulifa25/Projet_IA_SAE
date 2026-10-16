@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -57,6 +58,16 @@ public class GlobalExceptionHandler {
         // comme un 401 trompeur au lieu du vrai problème (quota API dépassé, réseau, etc.).
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body(HttpStatus.SERVICE_UNAVAILABLE,
                 "Le service IA est temporairement indisponible (quota ou surcharge). Réessayez dans quelques instants.", null));
+    }
+
+    @ExceptionHandler(UnexpectedRollbackException.class)
+    public ResponseEntity<Map<String, Object>> handleUnexpectedRollback(UnexpectedRollbackException ex) {
+        // Se produit quand une méthode @Transactional interne lève une exception (même attrapée par
+        // l'appelant juste après) : Spring marque alors toute la transaction "rollback-only", et le
+        // commit final échoue silencieusement. Sans ce handler, l'erreur ressort en faux 401 (cf.
+        // handleIAServiceException ci-dessus pour le même mécanisme général).
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Une erreur interne est survenue. Réessayez dans quelques instants.", null));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

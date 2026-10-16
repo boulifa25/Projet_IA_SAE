@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
-import { FileText, Loader2, AlertCircle, Download, Check, X as XIcon } from 'lucide-react';
+import { FileText, Loader2, AlertCircle, Download, Check, X as XIcon, Sparkles } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { candidaturesApi, ApiError, type CandidatureResponse } from '@/lib/api';
 import { candidatureStatutConfig } from '@/lib/statusStyles';
 
+interface ScoreIA {
+  score: number;
+  raison: string;
+}
+
 export default function CandidaturesEntreprise() {
   const { token } = useAuth();
   const [candidatures, setCandidatures] = useState<CandidatureResponse[]>([]);
+  const [scores, setScores] = useState<Record<number, ScoreIA>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
@@ -15,11 +21,29 @@ export default function CandidaturesEntreprise() {
     if (!token) return;
     setLoading(true);
     try {
-      setCandidatures(await candidaturesApi.recues(token));
+      const data = await candidaturesApi.recues(token);
+      setCandidatures(data);
+      loadScores(data, token);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Impossible de charger les candidatures.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadScores = async (data: CandidatureResponse[], authToken: string) => {
+    const offreIds = [...new Set(data.map((c) => c.offreId))];
+    for (const offreId of offreIds) {
+      try {
+        const resultats = await candidaturesApi.preselection(offreId, authToken);
+        setScores((prev) => {
+          const next = { ...prev };
+          resultats.forEach((r) => { next[r.candidatureId] = { score: r.score, raison: r.raison }; });
+          return next;
+        });
+      } catch {
+        // Score IA indisponible pour cette offre : on affiche la candidature sans score, silencieusement.
+      }
     }
   };
 
@@ -84,13 +108,30 @@ export default function CandidaturesEntreprise() {
             const statut = candidatureStatutConfig[c.statut];
             const busy = busyId === c.id;
             const enAttente = c.statut === 'EN_ATTENTE' || c.statut === 'EN_EVALUATION';
+            const scoreIA = scores[c.id];
+            const scoreColor = scoreIA
+              ? scoreIA.score >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : scoreIA.score >= 40 ? 'bg-amber-50 text-amber-700 border-amber-200'
+                : 'bg-slate-100 text-slate-500 border-slate-200'
+              : '';
             return (
               <div key={c.id} className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-accent-100 flex items-center justify-center text-sm font-bold text-primary-700 shrink-0">
                   {c.etudiantPrenom[0]}{c.etudiantNom[0]}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-900 truncate">{c.etudiantPrenom} {c.etudiantNom}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{c.etudiantPrenom} {c.etudiantNom}</p>
+                    {scoreIA && (
+                      <span
+                        title={scoreIA.raison}
+                        className={`flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded-md border shrink-0 ${scoreColor}`}
+                      >
+                        <Sparkles className="w-2.5 h-2.5" />
+                        {scoreIA.score}%
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-slate-400 truncate">
                     {c.offreTitre} · {new Date(c.dateEnvoi).toLocaleDateString('fr-FR')}
                   </p>

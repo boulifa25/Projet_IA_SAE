@@ -5,11 +5,13 @@ import com.stageia.backend.dto.RecommandationIAResponse;
 import com.stageia.backend.model.Enseignant;
 import com.stageia.backend.security.UserPrincipal;
 import com.stageia.backend.service.RecommandationIAService;
+import com.stageia.backend.service.SyntheseParcoursService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +23,7 @@ import java.util.List;
 public class RecommandationIAController {
 
     private final RecommandationIAService recommandationIAService;
+    private final SyntheseParcoursService syntheseParcoursService;
 
     @GetMapping("/stage/{stageId}")
     public List<RecommandationIAResponse> parStage(@PathVariable Long stageId, @AuthenticationPrincipal UserPrincipal principal) {
@@ -31,5 +34,10 @@ public class RecommandationIAController {
     @PreAuthorize("hasRole('ENSEIGNANT')")
     public List<AlerteRisqueResponse> mesAlertes(@AuthenticationPrincipal UserPrincipal principal) {
         return recommandationIAService.listerAlertesEnseignant((Enseignant) principal.getUtilisateur());
+    }
+
+    @PostMapping("/stage/{stageId}/synthese")
+    public RecommandationIAResponse genererSynthese(@PathVariable Long stageId, @AuthenticationPrincipal UserPrincipal principal) {
+        return syntheseParcoursService.genererSynthese(stageId, principal.getUtilisateur());
     }
 }
