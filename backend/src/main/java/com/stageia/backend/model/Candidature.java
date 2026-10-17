@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -39,8 +38,7 @@ public class Candidature {
     @JoinColumn(name = "etudiant_id", nullable = false)
     private Etudiant etudiant;
 
-    @Lob
-    @Column(name = "lettre_motivation", nullable = false)
+    @Column(name = "lettre_motivation", nullable = false, columnDefinition = "text")
     private String lettreMotivation;
 
     @Column(name = "cv_filename", nullable = false)

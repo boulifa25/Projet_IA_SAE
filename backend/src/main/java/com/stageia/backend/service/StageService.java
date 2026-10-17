@@ -26,11 +26,8 @@ public class StageService {
 
     @Transactional(readOnly = true, noRollbackFor = ResourceNotFoundException.class)
     public StageResponse getMonStage(Long etudiantId) {
-        List<Stage> stages = stageRepository.findByConvention_Candidature_Etudiant_IdOrderByDateCreationDesc(etudiantId);
-        if (stages.isEmpty()) {
-            throw new ResourceNotFoundException("Aucun stage trouvé pour cet étudiant.");
-        }
-        Stage stage = stages.get(0);
+        Stage stage = stageRepository.findFirstByConvention_Candidature_Etudiant_IdOrderByDateCreationDesc(etudiantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Aucun stage trouvé pour cet étudiant."));
         return new StageResponse(stage, rapportRepository.findByStageOrderByDateDepotDesc(stage).size());
     }
 

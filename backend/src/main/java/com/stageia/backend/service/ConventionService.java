@@ -69,11 +69,9 @@ public class ConventionService {
 
     @Transactional(readOnly = true, noRollbackFor = ResourceNotFoundException.class)
     public ConventionResponse getMaConvention(Long etudiantId) {
-        List<Convention> conventions = conventionRepository.findByCandidature_Etudiant_IdOrderByDateGenerationDesc(etudiantId);
-        if (conventions.isEmpty()) {
-            throw new ResourceNotFoundException("Aucune convention trouvée pour cet étudiant.");
-        }
-        return new ConventionResponse(conventions.get(0));
+        Convention convention = conventionRepository.findFirstByCandidature_Etudiant_IdOrderByDateGenerationDesc(etudiantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Aucune convention trouvée pour cet étudiant."));
+        return new ConventionResponse(convention);
     }
 
     @Transactional

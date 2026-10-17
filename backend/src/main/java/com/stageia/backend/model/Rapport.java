@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -41,7 +40,7 @@ public class Rapport {
     @Column(nullable = false)
     private String titre;
 
-    @Lob
+    @Column(columnDefinition = "text")
     private String commentaire;
 
     @Column(name = "fichier_filename", nullable = false)
