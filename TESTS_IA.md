@@ -1,10 +1,11 @@
 # Scénarios de test — Modules IA (StageIO)
 
-13 scénarios couvrant les 3 sous-modules IA de la plateforme : analyse de rapport, matching CV/offres, assistant conversationnel.
+Scénarios couvrant les 7 modules IA de la plateforme : analyse de rapport, matching CV/offres, assistant conversationnel, synthèse de parcours, pré-sélection de candidatures, pertinence des conventions, détection d'écart d'évaluation.
 
-- Moteur : Google Gemini (`gemini-3.8-flash`), quota gratuit de 20 requêtes/jour.
+- Moteur : Groq (`openai/gpt-oss-120b`), quota gratuit ~1000 req/jour (migré depuis Gemini le 13/10/2026, quota bien plus confortable).
 - Backend : `localhost:8081` · Frontend : `localhost:5173`.
-- Données réelles de la base au 06/10/2026 (adaptez les comptes/IDs si la base a changé depuis).
+- Comptes de test (mot de passe `TestIA2026!` sauf admin) : `azizboulifa25@gmail.com` (étudiant), `sarra.zouari@gmail.com` (enseignant, spécialité Data & IA), `omar.zemni@gmail.com` (sopra steria), `aymen.benabdallah@gmail.com` (Google), `emma.dubois@test.fr` (PixelCraft), `admin@stageia.local` / `ChangeMe123!`.
+- Données réelles de la base au 16/10/2026 (adaptez les comptes/IDs si la base a changé depuis).
 
 ---
 
@@ -119,6 +120,66 @@ Compte enseignant (ex. `julie.bernard@ecole.fr`, `sara.zouari@gmail.com`).
 
 **Résultat attendu** : chiffres cohérents avec le tableau de bord admin (actuellement 3 entreprises partenaires, 2 étudiants placés).
 
-### 3.6 — Résilience quota IA épuisé
+### 3.6 — Résilience : réponse IA invalide ou indisponible
 
-Déjà validé le 03/10/2026 : quota Gemini gratuit épuisé (20 req/jour) → message clair « service IA temporairement indisponible » (503), plus jamais de faux 401. À retester seulement en cas de régression suspectée.
+Validé à plusieurs reprises (quota Gemini épuisé le 03/10, JSON tronqué par Groq le 16/10) : toute panne IA (quota, réseau, JSON malformé) renvoie désormais un message clair « service IA temporairement indisponible » (503), jamais un faux 401. À retester seulement en cas de régression suspectée.
+
+---
+
+## Module 4 — Synthèse automatique du parcours étudiant
+
+Génère, à la demande, un résumé en 4 paragraphes (déroulement, points forts, points de vigilance, recommandation pour le jury) à partir de l'historique complet d'un stage (rapports + analyses IA déjà générées). Visible côté admin, sur une soutenance planifiée ou réalisée.
+
+### 4.1 — Génération sur un stage avec historique riche
+
+1. Connectez-vous avec `admin@stageia.local` / `ChangeMe123!`.
+2. **Soutenances** → section « Soutenances planifiées » → trouvez la ligne d'**aziz boulifa** (Google, sujet « test ») → bouton **Synthèse IA**.
+3. Patientez (~5s, indicateur de chargement visible cette fois).
+
+**Résultat attendu** : un texte structuré qui mentionne le blocage technique initial (serveur, absence de réponse des tuteurs), le risque de décrochage détecté puis la récupération, les points forts (autonomie, documentation), et une suggestion pour le jury.
+
+---
+
+## Module 5 — Pré-sélection IA des candidatures (entreprise)
+
+L'inverse du matching CV/offres : pour une offre donnée, l'IA note chaque candidature reçue en croisant filière de l'étudiant et contenu réel de la lettre de motivation.
+
+### 5.1 — Candidatures de qualité très différente sur la même offre
+
+1. Connectez-vous avec `emma.dubois@test.fr` (PixelCraft).
+2. **Candidatures** → observez les badges de score à côté des deux candidatures d'aziz boulifa (offres « Test » et « UX Designer »).
+
+**Résultat attendu** : un badge de score (%) apparaît à côté de chaque candidat, avec une raison au survol. Essayez aussi avec `omar.zemni@gmail.com` (sopra steria) ou `aymen.benabdallah@gmail.com` (Google) sur leurs propres offres pour comparer des lettres de motivation très soignées (vraies lettres rédigées) à des lettres test illisibles — l'écart de score doit être net.
+
+---
+
+## Module 6 — Pertinence des conventions pour l'enseignant
+
+Quand un enseignant consulte les conventions en attente d'un référent, l'IA score chacune selon sa spécialité.
+
+### 6.1 — Convention très alignée avec la spécialité
+
+1. Connectez-vous avec `sarra.zouari@gmail.com` (spécialité **Data & IA**).
+2. **Conventions** → section « en attente de validation » → la convention de **seif ayed** (Google, sujet autour des LLM/RAG/IA juridique) doit apparaître avec un badge de score élevé et une raison citant l'adéquation avec Data & IA.
+
+**Résultat attendu** : la liste est triée par score décroissant, cette convention remonte en premier.
+
+---
+
+## Module 7 — Détection d'écart anormal entre évaluations
+
+Quand l'administration finalise une soutenance, si la moyenne de l'enseignant et celle de l'entreprise diffèrent de plus de 4 points sur 20, l'IA explique l'écart à partir des commentaires de chaque évaluateur et notifie tous les administrateurs.
+
+### 7.1 — Évaluations volontairement divergentes
+
+Une soutenance est déjà planifiée pour le stage d'aziz boulifa chez Google (scénario 4.1).
+
+1. Connectez-vous avec `sarra.zouari@gmail.com` → **Évaluation** → notez chaque critère haut (ex. 17-19/20) avec des commentaires élogieux.
+2. Connectez-vous avec `aymen.benabdallah@gmail.com` (Google) → **Évaluation** → notez chaque critère bas (ex. 5-8/20) avec des commentaires critiques (ex. « manque d'autonomie », « livrables en retard »).
+3. Connectez-vous avec `admin@stageia.local` → **Soutenances** → **Finaliser** sur cette soutenance.
+
+**Résultat attendu** : la soutenance se finalise normalement (note moyenne calculée). Quelques secondes après, une **notification** apparaît pour l'administrateur (cloche en haut à droite) signalant l'écart, avec une explication générée par l'IA à partir des commentaires des deux évaluateurs.
+
+### 7.2 — Pas d'écart anormal
+
+Si les deux évaluateurs notent de façon cohérente (écart < 4 points), aucune notification n'est générée — comportement attendu, pas un bug.

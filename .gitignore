@@ -22,3 +22,10 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# /brag video output (large render artifacts, not meant for version control)
+brag-output/
+brag-output-*/
+
+# Word lock files
+~$*.docx
