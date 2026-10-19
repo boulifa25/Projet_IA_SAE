@@ -54,6 +54,18 @@ public class Candidature {
     @Column(name = "date_envoi", nullable = false, updatable = false)
     private Instant dateEnvoi;
 
+    @Column(name = "score_ia")
+    private Integer scoreIa;
+
+    @Column(name = "score_ia_points_forts", columnDefinition = "text")
+    private String scoreIaPointsForts;
+
+    @Column(name = "score_ia_points_ameliorer", columnDefinition = "text")
+    private String scoreIaPointsAmeliorer;
+
+    @Column(name = "score_ia_conseil", columnDefinition = "text")
+    private String scoreIaConseil;
+
     @PrePersist
     protected void onCreate() {
         this.dateEnvoi = Instant.now();

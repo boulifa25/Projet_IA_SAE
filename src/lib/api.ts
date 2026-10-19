@@ -178,6 +178,10 @@ export interface CandidatureResponse {
   cvOriginalName: string;
   statut: StatutCandidature;
   dateEnvoi: string;
+  scoreIa: number | null;
+  scoreIaPointsForts: string[];
+  scoreIaPointsAmeliorer: string[];
+  scoreIaConseil: string | null;
 }
 
 export interface OffreMatchingResultat {

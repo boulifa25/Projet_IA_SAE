@@ -10,9 +10,12 @@ import {
   CheckCircle2,
   ArrowLeft,
   ArrowRight,
+  Sparkles,
+  TrendingUp,
+  Lightbulb,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { candidaturesApi, ApiError, type OffreResponse } from '@/lib/api';
+import { candidaturesApi, ApiError, type OffreResponse, type CandidatureResponse } from '@/lib/api';
 
 const STEPS = ['CV', 'Motivation', 'Vérification'] as const;
 
@@ -30,6 +33,7 @@ export default function PostulerWizard({ offre, onClose, onSuccess }: PostulerWi
   const [lettreMotivation, setLettreMotivation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<CandidatureResponse | null>(null);
 
   const handleFile = (file: File | null) => {
     if (!file) return;
@@ -74,8 +78,8 @@ export default function PostulerWizard({ offre, onClose, onSuccess }: PostulerWi
     setLoading(true);
     setError(null);
     try {
-      await candidaturesApi.postuler(offre.id, lettreMotivation, cv, token);
-      onSuccess();
+      const response = await candidaturesApi.postuler(offre.id, lettreMotivation, cv, token);
+      setResult(response);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Impossible d'envoyer votre candidature.");
     } finally {
@@ -104,6 +108,97 @@ export default function PostulerWizard({ offre, onClose, onSuccess }: PostulerWi
           </button>
         </div>
 
+        {result ? (
+          <div className="px-6 py-6 space-y-5">
+            <div className="flex items-center gap-2 text-emerald-600">
+              <CheckCircle2 className="w-5 h-5" />
+              <p className="text-sm font-semibold">Candidature envoyée avec succès !</p>
+            </div>
+
+            {result.scoreIa !== null ? (
+              <>
+                <div className="flex items-center gap-4 bg-slate-50 rounded-2xl border border-slate-200 p-4">
+                  <div
+                    className={`w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold shrink-0 ${
+                      result.scoreIa >= 70
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : result.scoreIa >= 40
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-rose-100 text-rose-700'
+                    }`}
+                  >
+                    {result.scoreIa}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Estimation IA de vos chances
+                    </div>
+                    <p className="text-sm text-slate-600 mt-0.5">
+                      Basée sur le contenu réel de votre CV et de votre lettre de motivation pour cette offre.
+                    </p>
+                  </div>
+                </div>
+
+                {result.scoreIaPointsForts.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 uppercase tracking-wide">
+                      <TrendingUp className="w-3.5 h-3.5" />
+                      Points forts
+                    </div>
+                    <ul className="space-y-1.5">
+                      {result.scoreIaPointsForts.map((point, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {result.scoreIaPointsAmeliorer.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 uppercase tracking-wide">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      Points à améliorer
+                    </div>
+                    <ul className="space-y-1.5">
+                      {result.scoreIaPointsAmeliorer.map((point, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                          <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {result.scoreIaConseil && (
+                  <div className="flex items-start gap-2.5 px-4 py-3 bg-primary-50 border border-primary-200 rounded-xl text-sm text-primary-800">
+                    <Lightbulb className="w-4 h-4 shrink-0 mt-0.5" />
+                    {result.scoreIaConseil}
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-slate-500">
+                Votre candidature est bien enregistrée. L'estimation IA n'a pas pu être calculée cette fois
+                (réessayez une prochaine candidature), mais {offre.entrepriseNom} a bien reçu votre dossier.
+              </p>
+            )}
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={onSuccess}
+                className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-soft transition-all hover:shadow-glow active:scale-95"
+              >
+                Terminé
+              </button>
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Stepper */}
         <div className="flex items-center px-6 py-4 shrink-0">
           {STEPS.map((label, i) => (
@@ -258,6 +353,8 @@ export default function PostulerWizard({ offre, onClose, onSuccess }: PostulerWi
             </button>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>,
     document.body

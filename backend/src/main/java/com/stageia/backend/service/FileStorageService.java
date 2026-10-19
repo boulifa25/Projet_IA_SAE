@@ -2,6 +2,10 @@ package com.stageia.backend.service;
 
 import com.stageia.backend.exception.InvalidFileException;
 import com.stageia.backend.exception.ResourceNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -19,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class FileStorageService {
 
     private static final List<String> ALLOWED_CONTENT_TYPES = List.of("application/pdf");
@@ -56,6 +61,25 @@ public class FileStorageService {
         }
 
         return filename;
+    }
+
+    /**
+     * Extrait le texte brut d'un CV PDF pour l'injecter dans un prompt IA (score de
+     * candidature). Retourne null si le fichier n'a pas de couche texte exploitable
+     * (CV scanné sous forme d'image) ou si l'extraction échoue — ce n'est jamais une
+     * erreur bloquante, seulement un contexte IA appauvri.
+     */
+    public String extraireTexte(MultipartFile file) {
+        try {
+            try (PDDocument document = Loader.loadPDF(file.getBytes())) {
+                String texte = new PDFTextStripper().getText(document);
+                return texte != null ? texte.trim() : null;
+            }
+        } catch (Exception e) {
+            log.warn("Impossible d'extraire le texte du CV '{}' (probablement un scan sans texte sélectionnable)",
+                    file.getOriginalFilename(), e);
+            return null;
+        }
     }
 
     public String storeGeneratedPdf(byte[] content) {

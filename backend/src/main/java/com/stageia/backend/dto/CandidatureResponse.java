@@ -5,6 +5,8 @@ import com.stageia.backend.model.StatutCandidature;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 @Getter
 public class CandidatureResponse {
@@ -20,6 +22,10 @@ public class CandidatureResponse {
     private final String cvOriginalName;
     private final StatutCandidature statut;
     private final Instant dateEnvoi;
+    private final Integer scoreIa;
+    private final List<String> scoreIaPointsForts;
+    private final List<String> scoreIaPointsAmeliorer;
+    private final String scoreIaConseil;
 
     public CandidatureResponse(Candidature candidature) {
         this.id = candidature.getId();
@@ -33,5 +39,16 @@ public class CandidatureResponse {
         this.cvOriginalName = candidature.getCvOriginalName();
         this.statut = candidature.getStatut();
         this.dateEnvoi = candidature.getDateEnvoi();
+        this.scoreIa = candidature.getScoreIa();
+        this.scoreIaPointsForts = splitLignes(candidature.getScoreIaPointsForts());
+        this.scoreIaPointsAmeliorer = splitLignes(candidature.getScoreIaPointsAmeliorer());
+        this.scoreIaConseil = candidature.getScoreIaConseil();
+    }
+
+    private static List<String> splitLignes(String texte) {
+        if (texte == null || texte.isBlank()) {
+            return List.of();
+        }
+        return Arrays.asList(texte.split("\n"));
     }
 }

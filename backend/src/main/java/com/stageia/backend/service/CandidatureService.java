@@ -12,9 +12,11 @@ import com.stageia.backend.model.StatutCandidature;
 import com.stageia.backend.model.StatutOffre;
 import com.stageia.backend.model.TypeNotification;
 import com.stageia.backend.model.Utilisateur;
+import com.stageia.backend.dto.ia.CandidatureScoreResultat;
 import com.stageia.backend.repository.CandidatureRepository;
 import com.stageia.backend.repository.OffreRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CandidatureService {
 
     private final CandidatureRepository candidatureRepository;
@@ -32,6 +35,7 @@ public class CandidatureService {
     private final FileStorageService fileStorageService;
     private final ConventionService conventionService;
     private final NotificationService notificationService;
+    private final CandidatureScoringService candidatureScoringService;
 
     @Transactional
     public CandidatureResponse postuler(Long offreId, String lettreMotivation, MultipartFile cv, Etudiant etudiant) {
@@ -46,6 +50,7 @@ public class CandidatureService {
             throw new ConflictException("Vous avez déjà postulé à cette offre.");
         });
 
+        String cvTexte = fileStorageService.extraireTexte(cv);
         String cvFilename = fileStorageService.storePdf(cv);
 
         Candidature candidature = new Candidature();
@@ -55,8 +60,22 @@ public class CandidatureService {
         candidature.setCvFilename(cvFilename);
         candidature.setCvOriginalName(cv.getOriginalFilename());
         candidature.setStatut(StatutCandidature.EN_ATTENTE);
+        candidature = candidatureRepository.save(candidature);
 
-        return new CandidatureResponse(candidatureRepository.save(candidature));
+        try {
+            CandidatureScoreResultat resultat = candidatureScoringService.evaluer(offre, cvTexte, lettreMotivation);
+            candidature.setScoreIa(resultat.score());
+            candidature.setScoreIaPointsForts(String.join("\n", resultat.pointsForts()));
+            candidature.setScoreIaPointsAmeliorer(String.join("\n", resultat.pointsAmeliorer()));
+            candidature.setScoreIaConseil(resultat.conseil());
+            candidature = candidatureRepository.save(candidature);
+        } catch (Exception e) {
+            // La candidature est déjà enregistrée : un échec du score IA (quota épuisé,
+            // réponse JSON invalide...) ne doit jamais empêcher l'étudiant de postuler.
+            log.warn("Score IA indisponible pour la candidature {}", candidature.getId(), e);
+        }
+
+        return new CandidatureResponse(candidature);
     }
 
     @Transactional(readOnly = true)
